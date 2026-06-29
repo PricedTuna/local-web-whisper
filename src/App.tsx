@@ -15,7 +15,7 @@ interface ProgressItem {
 }
 
 function App() {
-  const [text, setText] = useState("Aquí se verá el texto!");
+  const [text, setText] = useState("Waiting to transcript ;)");
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [progressItems, setProgressItems] = useState<ProgressItem[]>([]);
 
