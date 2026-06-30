@@ -4,6 +4,7 @@ import { AudioInputFile } from "./components/AudioInputFile";
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
 import { Spinner } from "./components/ui/spinner";
 import { Check } from "lucide-react";
+import { Button } from "./components/ui/button";
 
 interface ProgressItem {
   file: string;
@@ -19,6 +20,7 @@ function App() {
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [progressItems, setProgressItems] = useState<ProgressItem[]>([]);
+  const [audioFile, setAudioFile] = useState<undefined | File>();
 
   async function transcribe(file: File) {
     setIsModelLoading(false);
@@ -92,10 +94,10 @@ function App() {
       <div className="w-full max-w-sm flex flex-col gap-10">
         <AudioInputFile
           onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) transcribe(file);
+            setAudioFile(e.target.files?.[0])
           }}
         />
+        <Button onClick={() => audioFile ? transcribe(audioFile) : alert('First upload an audio')}>Transcribe it!</Button>
 
         {(isModelLoading || isTranscribing) && (
           <div className="flex flex-col w-full max-w-xs gap-2 [--radius:1rem]">
