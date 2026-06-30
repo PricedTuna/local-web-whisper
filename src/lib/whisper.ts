@@ -1,8 +1,8 @@
-import { pipeline, type ProgressCallback } from "@huggingface/transformers";
+import { pipeline, type AutomaticSpeechRecognitionPipeline, type ProgressCallback } from "@huggingface/transformers";
 
-let transcriber: any = null;
+let transcriber: AutomaticSpeechRecognitionPipeline | null = null;
 
-export async function getTranscriber(progress_callback?: ProgressCallback) {
+export async function getTranscriber(progress_callback?: ProgressCallback): Promise<AutomaticSpeechRecognitionPipeline> {
   if (!transcriber) {
     transcriber = await pipeline("automatic-speech-recognition", "Xenova/whisper-base.en", {
       device: "webgpu",
@@ -11,7 +11,7 @@ export async function getTranscriber(progress_callback?: ProgressCallback) {
         decoder_model_merged: "q4",
       },
 
-      progress_callback
+      progress_callback,
     });
   }
 

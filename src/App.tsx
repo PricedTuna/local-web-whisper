@@ -17,13 +17,18 @@ interface ProgressItem {
 function App() {
   const [text, setText] = useState("Waiting to transcript ;)");
   const [isModelLoading, setIsModelLoading] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const [progressItems, setProgressItems] = useState<ProgressItem[]>([]);
 
   async function transcribe(file: File) {
+    setIsModelLoading(false);
+    setIsTranscribing(false);
+    setProgressItems([]);
+
     const worker = new Worker(new URL("./workers/whisper.workers.ts", import.meta.url), { type: "module" });
 
     worker.onmessage = (msg) => {
-      let message = msg.data;
+      const message = msg.data;
 
       switch (message.status) {
         case "progress":
@@ -43,11 +48,22 @@ function App() {
           setProgressItems([]);
           break;
 
+        case "transcribing":
+          setIsModelLoading(false);
+          setIsTranscribing(true);
+          setProgressItems([]);
+          break;
+
         case "error":
+          setIsModelLoading(false);
+          setIsTranscribing(false);
+          setProgressItems([]);
+
           alert(
             `${message.data.message} This is most likely because you are using Safari on an M1/M2 Mac. Please try again from Chrome, Firefox, or Edge.\n\nIf this is not the case, please file a bug report.`,
           );
 
+          worker.terminate();
           break;
         case "done":
           // Model file loaded: update progressItems.
@@ -55,7 +71,9 @@ function App() {
           break;
 
         case "transcripted":
+          setIsTranscribing(false);
           setText(message.transcription);
+          worker.terminate();
           break;
 
         default:
@@ -79,23 +97,24 @@ function App() {
           }}
         />
 
-        {isModelLoading && (
+        {(isModelLoading || isTranscribing) && (
           <div className="flex flex-col w-full max-w-xs gap-2 [--radius:1rem]">
             <div className="flex border-b-2 gap-2 items-center">
-              <Spinner /> Loading model files...
+              <Spinner /> {isTranscribing ? "Transcribing audio..." : "Loading model files..."}
             </div>
-            {progressItems.map((progressItem) => (
-              <div className="flex w-full gap-2">
-                {progressItem.status === "done" ? (
-                  <Check color="green" />
-                ) : (
-                  <>
-                    <Spinner /> {progressItem.progress}
-                  </>
-                )}{" "}
-                {progressItem.name}
-              </div>
-            ))}
+            {isModelLoading &&
+              progressItems.map((progressItem) => (
+                <div key={progressItem.file} className="flex w-full gap-2">
+                  {progressItem.status === "done" ? (
+                    <Check color="green" />
+                  ) : (
+                    <>
+                      <Spinner /> {progressItem.progress.toFixed(1)}
+                    </>
+                  )}{" "}
+                  {progressItem.name}
+                </div>
+              ))}
           </div>
         )}
 
