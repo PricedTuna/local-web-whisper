@@ -92,12 +92,14 @@ function App() {
   return (
     <div className="flex flex-col h-screen justify-center items-center">
       <div className="w-full max-w-sm flex flex-col gap-10">
-        <AudioInputFile
-          onChange={(e) => {
-            setAudioFile(e.target.files?.[0])
-          }}
-        />
-        <Button onClick={() => audioFile ? transcribe(audioFile) : alert('First upload an audio')}>Transcribe it!</Button>
+        <div className="w-full flex flex-col gap-2">
+          <AudioInputFile
+            onChange={(e) => {
+              setAudioFile(e.target.files?.[0]);
+            }}
+          />
+          <Button onClick={() => (audioFile ? transcribe(audioFile) : alert("First upload an audio"))}>Transcribe it!</Button>
+        </div>
 
         {(isModelLoading || isTranscribing) && (
           <div className="flex flex-col w-full max-w-xs gap-2 [--radius:1rem]">
