@@ -37,7 +37,7 @@ export function TranscriptionProgress({
                 {progressItem.progress.toFixed(1)}
               </>
             )}{" "}
-            {progressItem.name}
+            {progressItem.file}
           </div>
         ))}
     </div>
